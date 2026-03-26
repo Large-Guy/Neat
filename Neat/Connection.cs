@@ -1,0 +1,98 @@
+using System.Text.Json;
+using ENet;
+
+namespace Network;
+
+internal class Connection
+{
+    public Host? Host = null;
+    
+    public Dictionary<uint, Peer> Peers = [];
+    
+    public bool Listen(out object? e)
+    {
+        if(Host == null)
+            throw new Exception("Host not created");
+        
+        if (Host.Service(0, out var @event) <= 0)
+        {
+            e = null;
+            return false;
+        }
+        
+        switch(@event.Type)
+        {
+            case EventType.Connect:
+            {
+                e = new Connect
+                {
+                    Id = @event.Peer.ID,
+                    Ip = @event.Peer.IP
+                };
+                Peers.Add(@event.Peer.ID, @event.Peer);
+                return true;
+            }
+            case EventType.Receive:
+            {
+                var buffer = new byte[@event.Packet.Length];
+                @event.Packet.CopyTo(buffer);
+                @event.Packet.Dispose();
+
+                using var doc = JsonDocument.Parse(buffer);
+                var root = doc.RootElement;
+                
+                var typeName = root.GetProperty("type").GetString() ?? throw new Exception("No type");
+                var data = root.GetProperty("data");
+                
+                var type = Type.GetType(typeName) ?? throw new Exception("Unable to find type");
+                
+                var obj = data.Deserialize(type) ?? throw new Exception("Unable to deserialize");
+
+                e = obj;
+                
+                return true;
+            }
+            case EventType.Disconnect:
+            {
+                Peers.Remove(@event.Peer.ID);
+                e = new Disconnect
+                {
+                    Id = @event.Peer.ID
+                };
+                return true;
+            }
+            case EventType.Timeout:
+            {
+                e = new Timeout
+                {
+                    Id = @event.Peer.ID
+                };
+                return true;
+            }
+            case EventType.None:
+            default:
+            {
+                e = null;
+                return false;
+            }
+        }
+    }
+
+    public void Send(byte[] data, Peer target)
+    {
+        var packet = new Packet();
+        packet.Create(data);
+        target.Send(0, ref packet);
+    }
+    
+    public void Broadcast(byte[] data)
+    {
+        if(Host == null)
+            throw new Exception("Host not created");
+        
+        var packet = new Packet();
+        packet.Create(data);
+        
+        Host?.Broadcast(0, ref packet);
+    }
+}
