@@ -9,7 +9,7 @@ internal class Connection
     
     public Dictionary<uint, Peer> Peers = [];
     
-    public bool Listen(out object? e)
+    public bool Listen(out object? e, out uint? id)
     {
         if(Host == null)
             throw new Exception("Host not created");
@@ -17,6 +17,7 @@ internal class Connection
         if (Host.Service(0, out var @event) <= 0)
         {
             e = null;
+            id = null;
             return false;
         }
         
@@ -26,10 +27,10 @@ internal class Connection
             {
                 e = new Connect
                 {
-                    Id = @event.Peer.ID,
                     Ip = @event.Peer.IP
                 };
                 Peers.Add(@event.Peer.ID, @event.Peer);
+                id = @event.Peer.ID;
                 return true;
             }
             case EventType.Receive:
@@ -49,6 +50,7 @@ internal class Connection
                 var obj = data.Deserialize(type) ?? throw new Exception("Unable to deserialize");
 
                 e = obj;
+                id = @event.Peer.ID;
                 
                 return true;
             }
@@ -57,22 +59,23 @@ internal class Connection
                 Peers.Remove(@event.Peer.ID);
                 e = new Disconnect
                 {
-                    Id = @event.Peer.ID
                 };
+                id = @event.Peer.ID;
                 return true;
             }
             case EventType.Timeout:
             {
                 e = new Timeout
                 {
-                    Id = @event.Peer.ID
                 };
+                id = @event.Peer.ID;
                 return true;
             }
             case EventType.None:
             default:
             {
                 e = null;
+                id = null;
                 return false;
             }
         }

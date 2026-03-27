@@ -34,12 +34,12 @@ public class Client
     public void Disconnect()
     {
         _server?.Disconnect(0);
-        _connection.Listen(out _);
+        _connection.Listen(out _, out _);
     }
     
     public bool Listen(out object? e)
     {
-        return _connection.Listen(out e);
+        return _connection.Listen(out e, out _);
     }
 
     public void Send(object data, bool reliable = false)

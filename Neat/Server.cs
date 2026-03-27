@@ -43,7 +43,12 @@ public class Server
     
     public bool Listen(out object? e)
     {
-        return _connection.Listen(out e);
+        return _connection.Listen(out e, out _);
+    }
+
+    public bool Listen(out object? e, out uint? id)
+    {
+        return _connection.Listen(out e, out id);
     }
 
     public void Send(object data, uint target, bool reliable = false)
