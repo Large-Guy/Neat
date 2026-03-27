@@ -1,4 +1,4 @@
-namespace Network;
+namespace Neat;
 
 public struct Connect
 {

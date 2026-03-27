@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using ENet;
 
-namespace Network;
+namespace Neat;
 
 public class Net
 {

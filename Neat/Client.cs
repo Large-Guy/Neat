@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Json;
 using ENet;
 
-namespace Network;
+namespace Neat;
 
 public class Client
 {
