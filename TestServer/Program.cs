@@ -18,7 +18,7 @@ class Program
                     {
                         Console.WriteLine($"Client {connect.Id} connected from {connect.Ip}");
                         server.Send($"Hello Client {connect.Id}", connect.Id);
-                        server.Send("Hey guys, we got a new client here!");
+                        server.Broadcast("Hey guys, we got a new client here!");
                         break;
                     }
                     case Disconnect disconnect:
@@ -29,7 +29,7 @@ class Program
                     case string str:
                     {
                         Console.WriteLine(str);
-                        server.Send(str);
+                        server.Broadcast(str);
                         break;
                     }
                 }

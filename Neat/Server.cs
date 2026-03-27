@@ -46,7 +46,7 @@ public class Server
         return _connection.Listen(out e);
     }
 
-    public void Send(object data, uint? target = null)
+    public void Send(object data, uint target, bool reliable = false)
     {
         var wrapper = new
         {
@@ -54,15 +54,19 @@ public class Server
             data = data
         };
         var bin = JsonSerializer.SerializeToUtf8Bytes(wrapper);
-        if (target != null)
+        if (!_connection.Peers.TryGetValue(target, out var peer))
+            throw new Exception("Peer not found");
+        _connection.Send(bin, peer, reliable);
+    }
+
+    public void Broadcast(object data, bool reliable = false)
+    {
+        var wrapper = new
         {
-            if (!_connection.Peers.TryGetValue(target.Value, out var peer))
-                throw new Exception("Peer not found");
-            _connection.Send(bin, peer);
-        }
-        else
-        {
-            _connection.Broadcast(bin);
-        }
+            type = data.GetType().AssemblyQualifiedName,
+            data = data
+        };
+        var bin = JsonSerializer.SerializeToUtf8Bytes(wrapper);
+        _connection.Broadcast(bin);
     }
 }

@@ -42,7 +42,7 @@ public class Client
         return _connection.Listen(out e);
     }
 
-    public void Send(object data)
+    public void Send(object data, bool reliable = false)
     {
         var wrapper = new
         {
@@ -50,6 +50,6 @@ public class Client
             data = data
         };
         var bin = JsonSerializer.SerializeToUtf8Bytes(wrapper);
-        _connection.Send(bin, _server ?? throw new Exception("Peer not created"));
+        _connection.Send(bin, _server ?? throw new Exception("Peer not created"), reliable);
     }
 }

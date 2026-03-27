@@ -78,20 +78,20 @@ internal class Connection
         }
     }
 
-    public void Send(byte[] data, Peer target)
+    public void Send(byte[] data, Peer target, bool reliable)
     {
         var packet = new Packet();
-        packet.Create(data);
+        packet.Create(data, reliable ? PacketFlags.Reliable : PacketFlags.None);
         target.Send(0, ref packet);
     }
     
-    public void Broadcast(byte[] data)
+    public void Broadcast(byte[] data, bool reliable = false)
     {
         if(Host == null)
             throw new Exception("Host not created");
         
         var packet = new Packet();
-        packet.Create(data);
+        packet.Create(data, reliable ? PacketFlags.Reliable : PacketFlags.None);
         
         Host?.Broadcast(0, ref packet);
     }
