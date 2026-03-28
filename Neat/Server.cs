@@ -74,7 +74,7 @@ public class Server
             type = data.GetType().AssemblyQualifiedName,
             data = data
         };
-        var bin = JsonSerializer.SerializeToUtf8Bytes(wrapper);
+        var bin = JsonSerializer.SerializeToUtf8Bytes(wrapper, _options);
         _connection.Broadcast(bin);
     }
 }
