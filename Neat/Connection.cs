@@ -9,6 +9,8 @@ internal class Connection
     
     public Dictionary<uint, Peer> Peers = [];
     
+    private static JsonSerializerOptions _options = new JsonSerializerOptions { IncludeFields = true };
+    
     public bool Listen(out object? e, out uint? id)
     {
         if(Host == null)
@@ -47,7 +49,7 @@ internal class Connection
                 
                 var type = Type.GetType(typeName) ?? throw new Exception("Unable to find type");
                 
-                var obj = data.Deserialize(type) ?? throw new Exception("Unable to deserialize");
+                var obj = data.Deserialize(type, _options) ?? throw new Exception("Unable to deserialize");
 
                 e = obj;
                 id = @event.Peer.ID;
