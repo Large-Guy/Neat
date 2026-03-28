@@ -6,6 +6,9 @@ namespace Neat;
 public class Server
 {
     private Connection _connection = new Connection();
+    
+    private static JsonSerializerOptions _options = new JsonSerializerOptions { IncludeFields = true };
+    
     public Server(ushort port, int maxClients)
     {
         var address = new Address();
@@ -58,7 +61,7 @@ public class Server
             type = data.GetType().AssemblyQualifiedName,
             data = data
         };
-        var bin = JsonSerializer.SerializeToUtf8Bytes(wrapper);
+        var bin = JsonSerializer.SerializeToUtf8Bytes(wrapper, _options);
         if (!_connection.Peers.TryGetValue(target, out var peer))
             throw new Exception("Peer not found");
         _connection.Send(bin, peer, reliable);

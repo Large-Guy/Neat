@@ -11,6 +11,8 @@ public class Client
     private Connection _connection = new Connection();
     private Peer? _server = null;
     
+    private static JsonSerializerOptions _options = new JsonSerializerOptions { IncludeFields = true };
+    
     public Client(string ip, ushort port)
     {
         _connection.Host = new Host();
@@ -49,7 +51,7 @@ public class Client
             type = data.GetType().AssemblyQualifiedName,
             data = data
         };
-        var bin = JsonSerializer.SerializeToUtf8Bytes(wrapper);
+        var bin = JsonSerializer.SerializeToUtf8Bytes(wrapper, _options);
         _connection.Send(bin, _server ?? throw new Exception("Peer not created"), reliable);
     }
 }
